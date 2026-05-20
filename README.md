@@ -8,7 +8,7 @@
 Proyek ini adalah sebuah dashboard operasional data interaktif yang dikembangkan untuk menganalisis performa pengiriman lintas batas (cross-border logistics) dan evaluasi kinerja vendor ekspedisi. Dibangun menggunakan **Python** dan **Streamlit**, aplikasi ini mengolah ribuan log manifes pengiriman menjadi visualisasi data yang siap digunakan untuk pengambilan keputusan strategis.
 
 ## 🚀 Live Demo
-**[KLIK DI SINI UNTUK MEMBUKA DASHBOARD] (Masukkan link Streamlit kamu di sini nanti)**
+**[https://logistics-performance-id.streamlit.app/]**
 
 ## 📊 Key Features
 - **Customer Demographics:** Analisis profil dan data registrasi pelanggan.
