@@ -108,7 +108,7 @@ with tab2:
             filtered_perf = df_perf
            
         st.dataframe(filtered_perf, use_container_width=True)
-        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
+        st.caption(f"Menampilkan {len(filtered_perf):,} baris data dari {len(df_perf)} total")
        
         # Bar Chart
         st.markdown("#### 📊 Jumlah Pengiriman per Vendor")
@@ -150,7 +150,7 @@ with tab3:
        
         filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
         st.dataframe(filtered_ship, use_container_width=True)
-        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
+        st.caption(f"Menampilkan {len(filtered_ship):,} baris data dari {len(df_ship)} total")
        
         status_count = df_ship[status_col].value_counts().reset_index()
         status_count.columns = ['Status', 'Jumlah']
