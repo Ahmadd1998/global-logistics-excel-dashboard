@@ -1,8 +1,7 @@
-pip install plotly
-
 import streamlit as st
 import pandas as pd
 import os
+import plotly.express as px
 
 # ================================================
 # LOGISTICS & CARRIER PERFORMANCE DASHBOARD
@@ -23,11 +22,11 @@ st.caption("Developed by Ahmad Gozali Abbas")
 def load_data():
     try:
         base_path = "dataset"
-        
+       
         df_cust = pd.read_csv(os.path.join(base_path, "customer.xlsx - customer.csv"))
         df_perf = pd.read_csv(os.path.join(base_path, "customer.xlsx - logistics_performance.csv"))
         df_ship = pd.read_csv(os.path.join(base_path, "customer.xlsx - shipment.csv"))
-        
+       
         return df_cust, df_perf, df_ship
     except FileNotFoundError as e:
         st.error(f"❌ File tidak ditemukan: {e}")
@@ -59,8 +58,8 @@ st.write("---")
 # ===================== TABS =====================
 st.markdown("### 🗂️ Eksplorasi Data Base Logistik")
 tab1, tab2, tab3 = st.tabs([
-    "👥 Profil Customer", 
-    "📊 Kinerja Carrier (Vendor)", 
+    "👥 Profil Customer",
+    "📊 Kinerja Carrier (Vendor)",
     "🚢 Manifes Pengiriman"
 ])
 
@@ -68,7 +67,7 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
     st.subheader("Data Demografi & Profil Pelanggan")
     search_query = st.text_input("🔍 Cari Customer (Nama/ID):", "")
-    
+   
     if search_query:
         mask = df_cust.astype(str).apply(
             lambda x: x.str.contains(search_query, case=False)
@@ -79,28 +78,24 @@ with tab1:
     else:
         st.dataframe(df_cust, use_container_width=True)
 
-import plotly.express as px
-import plotly.graph_objects as go
-
 # ===================== TAB 2: KINERJA CARRIER =====================
 with tab2:
     st.subheader("Analisis Performa Waktu & Kerusakan Vendor Ekspedisi")
-    
+   
     carrier_cols = [col for col in df_perf.columns if 'carrier' in col.lower()]
     carrier_col = carrier_cols[0] if carrier_cols else None
-    
+   
     if carrier_col:
         carriers = ["Semua Vendor"] + sorted(df_perf[carrier_col].astype(str).unique())
         selected_carrier = st.selectbox("📌 Pilih Vendor Logistik:", carriers)
-        
+       
         if selected_carrier != "Semua Vendor":
             filtered_perf = df_perf[df_perf[carrier_col] == selected_carrier]
         else:
             filtered_perf = df_perf
-            
+           
         st.dataframe(filtered_perf, use_container_width=True)
-        
-        # === GRAFIK BAR YANG LEBIH MENARIK ===
+       
         st.markdown("#### 📊 Jumlah Pengiriman per Vendor")
         fig1 = px.bar(
             df_perf[carrier_col].value_counts().reset_index(),
@@ -113,8 +108,7 @@ with tab2:
         )
         fig1.update_layout(height=400, xaxis_title="Vendor", yaxis_title="Jumlah Pengiriman")
         st.plotly_chart(fig1, use_container_width=True)
-        
-        # Bisa tambah pie chart juga
+       
         st.markdown("#### 🥧 Proporsi Pengiriman per Vendor")
         fig2 = px.pie(
             df_perf[carrier_col].value_counts().reset_index(),
@@ -128,26 +122,25 @@ with tab2:
 # ===================== TAB 3: MANIFEST PENGIRIMAN =====================
 with tab3:
     st.subheader("Detail Logistik Barang Lintas Wilayah")
-    
+   
     status_cols = [col for col in df_ship.columns if any(x in col.lower() for x in ['status', 'delivery'])]
     status_col = status_cols[0] if status_cols else None
-    
+   
     if status_col:
         statuses = sorted(df_ship[status_col].dropna().unique())
         selected_status = st.multiselect(
-            "🎯 Filter Status Pengiriman:", 
-            statuses, 
+            "🎯 Filter Status Pengiriman:",
+            statuses,
             default=statuses
         )
-        
+       
         filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
         st.dataframe(filtered_ship, use_container_width=True)
-        
-        # === GRAFIK STATUS YANG LEBIH KEREN ===
+       
         st.markdown("#### 📊 Rasio Status Pengiriman Keseluruhan")
         status_count = df_ship[status_col].value_counts().reset_index()
         status_count.columns = ['Status', 'Jumlah']
-        
+       
         fig3 = px.bar(
             status_count,
             x='Status',
@@ -159,8 +152,7 @@ with tab3:
         )
         fig3.update_layout(height=400)
         st.plotly_chart(fig3, use_container_width=True)
-        
-        # Pie Chart Status
+       
         fig4 = px.pie(
             status_count,
             names='Status',
@@ -169,6 +161,6 @@ with tab3:
             color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
         )
         st.plotly_chart(fig4, use_container_width=True)
-        
+
 st.write("---")
 st.caption("Logistics Dashboard System | Portfolio Project Ahmad Gozali Abbas")
