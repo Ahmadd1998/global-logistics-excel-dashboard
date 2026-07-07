@@ -138,31 +138,30 @@ with tab2:
         st.dataframe(filtered_perf, use_container_width=True)
         st.caption(f"Menampilkan {len(filtered_perf):,} baris data dari {len(df_perf)} total")
        
-        # Bar Chart
+                # === GRAFIK BAR ===
         st.markdown("#### 📊 Jumlah Pengiriman per Vendor")
         fig1 = px.bar(
-            df_perf[carrier_col].value_counts().reset_index(),
+            filtered_perf[carrier_col].value_counts().reset_index(),   # pakai filtered_perf
             x=carrier_col,
             y='count',
             color=carrier_col,
-            title="Total Shipments per Carrier",
+            title=f"Total Shipments - {selected_carrier}",
             labels={'count': 'Jumlah Pengiriman', carrier_col: 'Vendor'},
             color_discrete_sequence=px.colors.qualitative.Set2
         )
         fig1.update_layout(height=420)
         st.plotly_chart(fig1, use_container_width=True)
-       
-        # Pie Chart
-        st.markdown("#### 🥧 Proporsi Pengiriman per Vendor")
+        
+        # === PIE CHART ===
+        st.markdown("#### 🥧 Proporsi Pengiriman")
         fig2 = px.pie(
-            df_perf[carrier_col].value_counts().reset_index(),
+            filtered_perf[carrier_col].value_counts().reset_index(),
             names=carrier_col,
             values='count',
-            title="Distribusi Persentase Pengiriman",
+            title=f"Distribusi Pengiriman - {selected_carrier}",
             color_discrete_sequence=px.colors.qualitative.Set2
         )
         st.plotly_chart(fig2, use_container_width=True)
-
 
 # ===================== TAB 3: MANIFEST PENGIRIMAN =====================
 with tab3:
