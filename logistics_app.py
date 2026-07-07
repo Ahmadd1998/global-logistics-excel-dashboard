@@ -63,20 +63,33 @@ tab1, tab2, tab3 = st.tabs([
     "🚢 Manifes Pengiriman"
 ])
 
-# TAB 1: Customer
 with tab1:
     st.subheader("Data Demografi & Profil Pelanggan")
-    search_query = st.text_input("🔍 Cari Customer (Nama/ID):", "")
-   
+    search_query = st.text_input("🔍 Cari Customer (Nama/ID):", "").strip()
+    
     if search_query:
-        mask = df_cust.astype(str).apply(
-            lambda x: x.str.contains(search_query, case=False)
-        ).any(axis=1)
+        # Cleaning search query (lebih fleksibel)
+        clean_query = search_query.replace("-", "").replace("_", "").lower()
+        
+        # Search lebih pintar
+        mask = (
+            df_cust.astype(str).apply(
+                lambda x: x.str.replace("-", "").str.replace("_", "").str.lower().str.contains(clean_query, case=False)
+            ).any(axis=1)
+        )
+        
         filtered_df = df_cust[mask]
-        st.dataframe(filtered_df, use_container_width=True)
-        st.caption(f"Menampilkan {len(filtered_df)} hasil pencarian")
+        
+        if len(filtered_df) > 0:
+            st.dataframe(filtered_df, use_container_width=True)
+            st.success(f"✅ Menampilkan {len(filtered_df)} hasil pencarian")
+        else:
+            st.warning(f"❌ Tidak ditemukan customer dengan kata kunci **'{search_query}'**")
+            st.info("Coba gunakan ID tanpa strip (contoh: cust100 atau CUST100)")
     else:
         st.dataframe(df_cust, use_container_width=True)
+        st.caption(f"Total Customer: {len(df_cust)}")
+        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
 
 # ===================== TAB 2: KINERJA CARRIER =====================
 with tab2:
@@ -120,6 +133,7 @@ with tab2:
             color_discrete_sequence=px.colors.qualitative.Set2
         )
         st.plotly_chart(fig2, use_container_width=True)
+        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
 
 # ===================== TAB 3: MANIFEST PENGIRIMAN =====================
 with tab3:
@@ -164,6 +178,7 @@ with tab3:
             color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
         )
         st.plotly_chart(fig4, use_container_width=True)
+        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
 
 st.write("---")
 st.caption("Logistics Dashboard System | Portfolio Project Ahmad Gozali Abbas")
