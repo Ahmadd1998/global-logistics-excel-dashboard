@@ -136,6 +136,7 @@ with tab2:
         st.plotly_chart(fig2, use_container_width=True)
 
 # ===================== TAB 3: MANIFEST PENGIRIMAN =====================
+# ===================== TAB 3: MANIFEST PENGIRIMAN =====================
 with tab3:
     st.subheader("Detail Logistik Barang Lintas Wilayah")
    
@@ -143,11 +144,9 @@ with tab3:
     status_col = status_cols[0] if status_cols else None
    
     if status_col:
-        # Ambil semua status unik termasuk NaN
+        # Ambil semua status termasuk null
         all_statuses = df_ship[status_col].unique()
         statuses = sorted([s for s in all_statuses if pd.notna(s)])
-        
-        # Tambah opsi "Null / Kosong"
         status_options = statuses + ["(Kosong / Null)"]
         
         selected_status = st.multiselect(
@@ -160,37 +159,48 @@ with tab3:
         if "(Kosong / Null)" in selected_status:
             mask = df_ship[status_col].isna() | df_ship[status_col].isin([s for s in selected_status if s != "(Kosong / Null)"])
         else:
-            mask = df_ship[status_col].isin(selected_status)
+            mask = df_ship[status_col].isin([s for s in selected_status if s != "(Kosong / Null)"])
         
         filtered_ship = df_ship[mask]
         
         st.dataframe(filtered_ship, use_container_width=True)
         st.caption(f"Menampilkan {len(filtered_ship):,} baris data dari {len(df_ship)} total")
-       
-        # Bar Chart
-        st.markdown("#### 📊 Rasio Status Pengiriman")
+        
+        # === GRAFIK STATUS ===
+        st.markdown("#### 📊 Rasio Status Pengiriman Keseluruhan")
+        
+        # Buat status_count dengan aman
+        status_count = filtered_ship[status_col].value_counts().reset_index()
+        status_count.columns = ['Status', 'Jumlah']
+        
+        # Ganti NaN jadi "Kosong"
+        status_count['Status'] = status_count['Status'].fillna("(Kosong)")
+        
         fig3 = px.bar(
             status_count,
             x='Status',
             y='Jumlah',
             color='Status',
             title="On-Time vs Delayed",
-            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"},
+            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b", "(Kosong)": "#888888"},
             text='Jumlah'
         )
         fig3.update_layout(height=420)
         st.plotly_chart(fig3, use_container_width=True)
-       
+        
         # Pie Chart
         st.markdown("#### 🥧 Persentase Status Pengiriman")
         fig4 = px.pie(
             status_count,
             names='Status',
             values='Jumlah',
-            title="Persentase On-Time vs Delayed",
-            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
+            title="Persentase Status Pengiriman",
+            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b", "(Kosong)": "#888888"}
         )
         st.plotly_chart(fig4, use_container_width=True)
+    else:
+        st.dataframe(df_ship, use_container_width=True)
+        st.caption(f"Menampilkan {len(df_ship):,} baris data")
 
 st.write("---")
 st.caption("Logistics Dashboard System | Portfolio Project Ahmad Gozali Abbas")
