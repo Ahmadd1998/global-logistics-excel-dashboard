@@ -44,14 +44,39 @@ df_cust, df_perf, df_ship = load_data()
 
 # ===================== METRIK =====================
 st.write("---")
-col1, col2, col3 = st.columns(3)
+
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("👥 Total Registrasi Customer", f"{len(df_cust):,} Users")
+    st.metric(
+        label="👥 Total Customer",
+        value=f"{len(df_cust):,}"
+    )
+
 with col2:
-    st.metric("🚢 Total Shipment Logs", f"{len(df_ship):,} Pengiriman")
+    st.metric(
+        label="🚢 Total Pengiriman",
+        value=f"{len(df_ship):,}"
+    )
+
 with col3:
-    st.metric("📊 Carrier Performance Records", f"{len(df_perf):,} Entri")
+    # On-Time Rate
+    if 'status_col' in locals() and status_col:
+        on_time_count = df_ship[status_col].value_counts().get("On-Time", 0)
+        on_time_rate = (on_time_count / len(df_ship) * 100)
+        st.metric(
+            label="✅ On-Time Rate",
+            value=f"{on_time_rate:.1f}%",
+            delta="Good" if on_time_rate > 80 else "Need Improvement"
+        )
+    else:
+        st.metric("✅ On-Time Rate", "N/A")
+
+with col4:
+    st.metric(
+        label="📊 Record Vendor",
+        value=f"{len(df_perf):,}"
+    )
 
 st.write("---")
 
