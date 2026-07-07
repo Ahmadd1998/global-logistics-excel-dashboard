@@ -102,9 +102,9 @@ st.write("---")
 
 @st.cache_data
 def load_data():
-    df_cust = pd.read_csv('customer.xlsx - customer.csv')
-    df_perf = pd.read_csv('customer.xlsx - logistics_performance.csv')
-    df_ship = pd.read_csv('customer.xlsx - shipment.csv')
+    df_cust = pd.read_csv('dataset/customer.xlsx - customer.csv')
+    df_perf = pd.read_csv('dataset/customer.xlsx - logistics_performance.csv')
+    df_ship = pd.read_csv('dataset/customer.xlsx - shipment.csv')
     return df_cust, df_perf, df_ship
 
 try:
