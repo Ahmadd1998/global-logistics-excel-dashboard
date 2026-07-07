@@ -96,6 +96,7 @@ with tab2:
            
         st.dataframe(filtered_perf, use_container_width=True)
        
+        # Bar Chart
         st.markdown("#### 📊 Jumlah Pengiriman per Vendor")
         fig1 = px.bar(
             df_perf[carrier_col].value_counts().reset_index(),
@@ -104,18 +105,19 @@ with tab2:
             color=carrier_col,
             title="Total Shipments per Carrier",
             labels={'count': 'Jumlah Pengiriman', carrier_col: 'Vendor'},
-            color_discrete_sequence=px.colors.sequential.Blues_r
+            color_discrete_sequence=px.colors.qualitative.Set2
         )
-        fig1.update_layout(height=400, xaxis_title="Vendor", yaxis_title="Jumlah Pengiriman")
+        fig1.update_layout(height=420)
         st.plotly_chart(fig1, use_container_width=True)
        
+        # Pie Chart
         st.markdown("#### 🥧 Proporsi Pengiriman per Vendor")
         fig2 = px.pie(
             df_perf[carrier_col].value_counts().reset_index(),
             names=carrier_col,
             values='count',
-            title="Distribusi Pengiriman",
-            color_discrete_sequence=px.colors.sequential.RdBu
+            title="Distribusi Persentase Pengiriman",
+            color_discrete_sequence=px.colors.qualitative.Set2
         )
         st.plotly_chart(fig2, use_container_width=True)
 
@@ -129,18 +131,17 @@ with tab3:
     if status_col:
         statuses = sorted(df_ship[status_col].dropna().unique())
         selected_status = st.multiselect(
-            "🎯 Filter Status Pengiriman:",
-            statuses,
-            default=statuses
+            "🎯 Filter Status Pengiriman:", statuses, default=statuses
         )
        
         filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
         st.dataframe(filtered_ship, use_container_width=True)
        
-        st.markdown("#### 📊 Rasio Status Pengiriman Keseluruhan")
         status_count = df_ship[status_col].value_counts().reset_index()
         status_count.columns = ['Status', 'Jumlah']
        
+        # Bar Chart
+        st.markdown("#### 📊 Rasio Status Pengiriman")
         fig3 = px.bar(
             status_count,
             x='Status',
@@ -150,14 +151,16 @@ with tab3:
             color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"},
             text='Jumlah'
         )
-        fig3.update_layout(height=400)
+        fig3.update_layout(height=420)
         st.plotly_chart(fig3, use_container_width=True)
        
+        # Pie Chart
+        st.markdown("#### 🥧 Persentase Status Pengiriman")
         fig4 = px.pie(
             status_count,
             names='Status',
             values='Jumlah',
-            title="Persentase Status Pengiriman",
+            title="Persentase On-Time vs Delayed",
             color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
         )
         st.plotly_chart(fig4, use_container_width=True)
