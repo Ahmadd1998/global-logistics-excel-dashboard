@@ -45,38 +45,41 @@ df_cust, df_perf, df_ship = load_data()
 # ===================== METRIK =====================
 st.write("---")
 
-# Hitung On-Time Rate dengan aman (dipindah ke sini)
-on_time_rate = 0.0
-if 'df_ship' in locals() and len(df_ship) > 0:
-    status_cols = [col for col in df_ship.columns if any(x in col.lower() for x in ['status', 'delivery'])]
-    status_col_kpi = status_cols[0] if status_cols else None
-    if status_col_kpi:
-        on_time_count = df_ship[status_col_kpi].value_counts().get("On-Time", 0)
-        on_time_rate = (on_time_count / len(df_ship) * 100)
-
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("👥 Total Customer", f"{len(df_cust):,}")
-
-with col2:
-    st.metric("🚢 Total Pengiriman", f"{len(df_ship):,}")
-
-with col3:
     st.metric(
-        label="✅ On-Time Rate",
-        value=f"{on_time_rate:.1f}%",
-        delta="Good" if on_time_rate > 80 else "Need Improvement"
+        label="👥 Total Customer",
+        value=f"{len(df_cust):,} Pelanggan"
     )
 
+with col2:
+    st.metric(
+        label="🚢 Total Pengiriman",
+        value=f"{len(df_ship):,} Pengiriman"
+    )
+
+with col3:
+    if 'df_ship' in locals() and len(df_ship) > 0:
+        status_cols = [col for col in df_ship.columns if any(x in col.lower() for x in ['status', 'delivery'])]
+        status_col = status_cols[0] if status_cols else None
+        if status_col:
+            on_time_rate = (df_ship[status_col].value_counts().get("On-Time", 0) / len(df_ship) * 100)
+            st.metric(
+                label="✅ On-Time Rate",
+                value=f"{on_time_rate:.1f}%",
+                delta="Good" if on_time_rate > 80 else "Need Improvement"
+            )
+    else:
+        st.metric("✅ On-Time Rate", "N/A")
+
 with col4:
-    # Avg Delay (sesuaikan nama kolom sesuai data lo)
     delay_col = next((col for col in df_perf.columns if 'delay' in col.lower()), None)
     if delay_col:
-        avg_delay = df_perf[delay_col].mean()
-        st.metric("⏳ Avg Delay", f"{avg_delay:.1f} jam")
+        avg_delay = df_perf[delay_col].mean().round(1)
+        st.metric("⏳ Avg Delay", f"{avg_delay} Jam")
     else:
-        st.metric("📊 Record Vendor", f"{len(df_perf):,}")
+        st.metric("📊 Record Vendor", f"{len(df_perf):,} Record")
 
 st.write("---")
 
