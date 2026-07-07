@@ -143,17 +143,29 @@ with tab3:
     status_col = status_cols[0] if status_cols else None
    
     if status_col:
-        statuses = sorted(df_ship[status_col].dropna().unique())
+        # Ambil semua status unik termasuk NaN
+        all_statuses = df_ship[status_col].unique()
+        statuses = sorted([s for s in all_statuses if pd.notna(s)])
+        
+        # Tambah opsi "Null / Kosong"
+        status_options = statuses + ["(Kosong / Null)"]
+        
         selected_status = st.multiselect(
-            "🎯 Filter Status Pengiriman:", statuses, default=statuses
+            "🎯 Filter Status Pengiriman:", 
+            status_options, 
+            default=statuses
         )
-       
-        filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
+        
+        # Filter logic
+        if "(Kosong / Null)" in selected_status:
+            mask = df_ship[status_col].isna() | df_ship[status_col].isin([s for s in selected_status if s != "(Kosong / Null)"])
+        else:
+            mask = df_ship[status_col].isin(selected_status)
+        
+        filtered_ship = df_ship[mask]
+        
         st.dataframe(filtered_ship, use_container_width=True)
         st.caption(f"Menampilkan {len(filtered_ship):,} baris data dari {len(df_ship)} total")
-       
-        status_count = df_ship[status_col].value_counts().reset_index()
-        status_count.columns = ['Status', 'Jumlah']
        
         # Bar Chart
         st.markdown("#### 📊 Rasio Status Pengiriman")
