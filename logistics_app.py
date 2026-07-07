@@ -108,6 +108,7 @@ with tab2:
             filtered_perf = df_perf
            
         st.dataframe(filtered_perf, use_container_width=True)
+        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
        
         # Bar Chart
         st.markdown("#### 📊 Jumlah Pengiriman per Vendor")
@@ -133,7 +134,6 @@ with tab2:
             color_discrete_sequence=px.colors.qualitative.Set2
         )
         st.plotly_chart(fig2, use_container_width=True)
-        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
 
 # ===================== TAB 3: MANIFEST PENGIRIMAN =====================
 with tab3:
@@ -150,6 +150,7 @@ with tab3:
        
         filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
         st.dataframe(filtered_ship, use_container_width=True)
+        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
        
         status_count = df_ship[status_col].value_counts().reset_index()
         status_count.columns = ['Status', 'Jumlah']
@@ -178,7 +179,6 @@ with tab3:
             color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
         )
         st.plotly_chart(fig4, use_container_width=True)
-        st.caption(f"Menampilkan {len(filtered_df if 'filtered_df' in locals() else df_cust)} baris data")
 
 st.write("---")
 st.caption("Logistics Dashboard System | Portfolio Project Ahmad Gozali Abbas")
