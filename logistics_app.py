@@ -164,24 +164,33 @@ with tab3:
     status_col = status_cols[0] if status_cols else None
    
     if status_col:
-        # Hanya status yang valid untuk filter
-        statuses = sorted(df_ship[status_col].dropna().unique())
+        all_statuses = df_ship[status_col].unique()
+        statuses = sorted([s for s in all_statuses if pd.notna(s)])
+        status_options = statuses + ["(Kosong / Null)"]
         
         selected_status = st.multiselect(
             "🎯 Filter Status Pengiriman:", 
-            statuses, 
+            status_options, 
             default=statuses
         )
         
-        filtered_ship = df_ship[df_ship[status_col].isin(selected_status)]
+        # Filter logic
+        if "(Kosong / Null)" in selected_status:
+            mask = df_ship[status_col].isna() | df_ship[status_col].isin([s for s in selected_status if s != "(Kosong / Null)"])
+        else:
+            mask = df_ship[status_col].isin(selected_status)
+        
+        filtered_ship = df_ship[mask]
         
         st.dataframe(filtered_ship, use_container_width=True)
         st.caption(f"Menampilkan {len(filtered_ship):,} baris data dari {len(df_ship)} total")
         
-        # Grafik selalu pakai data asli (bukan filtered)
+        # === GRAFIK (pakai filtered data) ===
         st.markdown("#### 📊 Rasio Status Pengiriman Keseluruhan")
-        status_count = df_ship[status_col].value_counts().reset_index()
+        
+        status_count = filtered_ship[status_col].value_counts(dropna=False).reset_index()
         status_count.columns = ['Status', 'Jumlah']
+        status_count['Status'] = status_count['Status'].fillna("(Kosong)")
         
         fig3 = px.bar(
             status_count,
@@ -189,7 +198,7 @@ with tab3:
             y='Jumlah',
             color='Status',
             title="On-Time vs Delayed",
-            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"},
+            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b", "(Kosong)": "#888888"},
             text='Jumlah'
         )
         fig3.update_layout(height=420)
@@ -201,9 +210,9 @@ with tab3:
             names='Status',
             values='Jumlah',
             title="Persentase Status Pengiriman",
-            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b"}
+            color_discrete_map={"On-Time": "#00cc96", "Delayed": "#ef553b", "(Kosong)": "#888888"}
         )
         st.plotly_chart(fig4, use_container_width=True)
-
+        
 st.write("---")
 st.caption("Logistics Dashboard System | Portfolio Project Ahmad Gozali Abbas")
